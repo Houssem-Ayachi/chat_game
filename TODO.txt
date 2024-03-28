@@ -1,0 +1,151 @@
+❗ -> must do
+✅ -> done
+❌ -> error
+🔜 -> doing
+
+[THOUGHTS]
+authentication
+email verification
+chat room
+group chat
+user
+trading
+images
+stickers
+wardrobe (to recustomize the character)
+bosses?
+coop interactions?
+items? (potions/shields)
+items store?
+collectables?
+
+[ENTITIES]
+    ->user❗{
+        name
+        level
+        xp
+        xp to next level
+        saved stickers (storage)
+        points (currency)
+        bio
+        fun facts
+        [BACKEND RELATED]
+            isVerified
+            email
+            pwd
+    }
+    ->level❗{
+        xp
+        rewards
+    }
+    ->user storage❗{
+        array of saved stickers
+    }
+    ->sticker❗{
+        //is mostly an image
+        image
+        name
+        rarity?
+    }
+    ->friends' list❗{
+        array of friends -> [{id, image, isOnline}]
+    }
+    ->conversation (page)❗{
+        ->list of users (to allow for group chats)
+        isMuted (for how long)
+        "actions" -> {
+            send message
+            receive message
+            delete message
+            modify message
+            check convo details
+            start trading
+            report user
+            reply to message?
+            react to message?
+            forward message?
+            pin message?
+        }
+    }
+    ->notification{
+        friend requests
+        chat notifications
+        trading notifications
+    }
+    ->conversation details (page){
+        user2 (other user) pfp
+        user2 name
+        check user2 profile
+        mute user2
+        block user2
+    }
+    ->message❗{
+        content (text/image)
+        sender id
+        convo id (to which convo iss sent to)
+        date
+        isSeen
+        #should be dynamic based on the content type
+        #can send an image and text at the same time
+        #image and text should be in one message 
+        #(like a label for the message and an imageWidget for the image)
+    }
+    ->trading❗{
+        user1 (host)
+        user2 (visitor)
+        user1 items to trade
+        user2 items to trade
+        #items can be stickers or collectables fetched from user's storage
+        user1 confirms trade
+        user2 confirms trade
+        transfer items to new owner
+        trade finished
+        SAVE TRADE IN DB
+    }
+    ->store❗{
+        list of non purchased stickers
+        each sticker has a price
+        user can buy stickers if he has the money to
+    }
+
+[TODO]
+    ->AUTHENTICATION{
+        signup{
+            setup email verification
+            implement signup with email verification
+        }
+        signin
+        reset password?
+    }
+    ->user profile{
+        see profile
+        edit profile (if is owner)
+    }
+    ->notifications
+    ->friends' list
+    ->active chats list (something like a home page where all your chats are)
+    ->chat page{
+        receive already sent messages
+        send messages //message should be dynamic (e.g text /text with image/ image)
+        receive messages
+        start trading
+    }
+    ->trading page{
+        wait for user2 to accept invite
+        if user2 rejects inform user1
+        start trading room
+        show each user what the other is holding
+        wait for both users to submit their items
+        transfer items to new owner
+        save trade in db
+        close trade room
+    }
+    ->user's storage{
+        display items bought
+    }
+    ->store page{
+        display stickers to purchase
+        check if user has enough money for the sticker
+        upon purchase add sticker to user's storage
+        add purchase to db (logging kinda)
+    }
