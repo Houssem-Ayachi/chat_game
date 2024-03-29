@@ -7,6 +7,7 @@ import features from 'src/db/features';
 @Module({
   imports: [MongooseModule.forFeature(features)],
   controllers: [UserController],
-  providers: [UserService]
+  providers: [UserService],
+  exports: [UserService]
 })
 export class UserModule {}

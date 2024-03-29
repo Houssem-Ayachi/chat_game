@@ -2,15 +2,18 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { env } from 'process';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { EmailerModule } from './emailer/emailer.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(env.DATABASE_URL, {dbName: "chatGame"}),
+    ConfigModule.forRoot({isGlobal: true}),
+    MongooseModule.forRoot(new ConfigService().get("DATABASE_URL"), {dbName: "chatGame"}),
     UserModule,
+    AuthModule,
+    EmailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,7 +10,6 @@ chat room
 group chat
 user
 trading
-images
 stickers
 wardrobe (to recustomize the character)
 bosses?
@@ -149,3 +148,8 @@ collectables?
         upon purchase add sticker to user's storage
         add purchase to db (logging kinda)
     }
+
+[DOING]
+
+
+[TESTING]
