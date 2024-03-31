@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, isValidObjectId } from 'mongoose';
 import {User, UserDocument} from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
 import { UpdateCharacterDTO } from './user.dto';
@@ -30,11 +30,18 @@ export class UserService {
 
     async updateCharacter(updateCharacterDTO: UpdateCharacterDTO){
         let {id, hat, head, body} = updateCharacterDTO;
+        if(!isValidObjectId(id)){
+            throw new BadRequestException("id is invalid");
+        }
         const user = await this.userModel.findById(id);
         if(user == null){
             throw new BadRequestException("user doesn't exist");
         }
-        return await this.userModel.updateOne({_id: user._id}, {character: {hat, head, body}});
+        const ack = await this.userModel.updateOne({_id: user._id}, {character: {hat, head, body}});
+        if(ack.modifiedCount == 1){
+            return {response: "success"};
+        }
+        throw new BadRequestException("coulnd't update character");
     }
 
     async getUserByEmail(email: string){
