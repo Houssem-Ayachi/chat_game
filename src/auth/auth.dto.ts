@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class SignUpOBJ{
 
@@ -31,7 +31,7 @@ export class SignInOBJ{
 
 export class VerificationCodeOBJ{
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
     code: number;
 

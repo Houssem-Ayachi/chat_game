@@ -12,14 +12,6 @@ export type UserDocument = HydratedDocument<User>;
 })
 export class User{
 
-    @Prop({
-        unique: true,
-        default: function genuuid(){
-            return uuid();
-        }
-    })
-    id: String;
-
     @Prop({required: true})
     userName: string;
 
@@ -38,8 +30,14 @@ export class User{
     @Prop({default: false})
     isVerified: boolean;
 
-    @Prop({type: {top: String, head: String, body: String}})
-    character: {top: string, head: string, body: string}
+    @Prop({default: 0})
+    points: number;
+
+    @Prop({
+        type: {hat: String, head: String, body: String},
+        default: {hat: "hat1", head: "head1", "body": "body1"}
+    })
+    character: {hat: string, head: string, body: string}
 
     @Prop()
     bio: string;

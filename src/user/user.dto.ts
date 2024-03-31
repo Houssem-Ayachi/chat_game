@@ -1,27 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
-
-export class CreateUserDTO{
-
-    @IsNotEmpty()
-    @IsString()
-    userName: String;
-
-    @IsEmail()
-    @IsNotEmpty()
-    @IsString()
-    email: String;
-
-    @IsNotEmpty()
-    @IsString()
-    password: String;
-
-}
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class UpdateCharacterDTO{
 
     @IsNotEmpty()
     @IsString()
-    top: String;
+    id: String
+
+    @IsNotEmpty()
+    @IsString()
+    hat: String;
 
     @IsNotEmpty()
     @IsString()
