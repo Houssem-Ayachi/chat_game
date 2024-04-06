@@ -4,10 +4,6 @@ export class SignUpOBJ{
 
     @IsString()
     @IsNotEmpty()
-    userName: string;
-
-    @IsString()
-    @IsNotEmpty()
     @IsEmail()
     email: string;
 

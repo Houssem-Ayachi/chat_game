@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsString } from "class-validator";
 
 export class UpdateCharacterDTO{
 
@@ -20,7 +20,11 @@ export class UpdateCharacterDTO{
 
 }
 
-export class UpdateUserDTO{
+export class UpdateProfileDTO{
+
+    @IsNotEmpty()
+    @IsString()
+    id: String;
 
     @IsNotEmpty()
     @IsString()
@@ -31,7 +35,8 @@ export class UpdateUserDTO{
     bio: String;
 
     @IsNotEmpty()
-    @IsString()
+    @IsArray()
+    @IsString({each: true})
     funFacts: String[];
-
+    
 }

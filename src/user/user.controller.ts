@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UpdateCharacterDTO, UpdateUserDTO } from './user.dto';
+import { UpdateCharacterDTO, UpdateProfileDTO } from './user.dto';
 
 //TODO: add authentication guard (IsLoggedIn)
-//TODO: add email verified guard (IsVerified)
+//TODO: add email verification guard (IsVerified)
 
 @Controller('user')
 export class UserController {
@@ -20,9 +20,9 @@ export class UserController {
 
     }
 
-    @Put("/user")
-    async updateUser(@Body() updateUserDTO: UpdateUserDTO){
-
+    @Put("/profile")
+    async updateProfile(@Body() updateUserDTO: UpdateProfileDTO){
+        return await this.userService.updateProfile(updateUserDTO);
     }
 
     @Put("/character")

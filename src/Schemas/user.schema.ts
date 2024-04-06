@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MSchema } from "mongoose";
-import { v4 as uuid } from "uuid";
 import { Sticker } from "./sticker.schema";
 import { Chat } from "./chat.schema";
 import { Level } from "./level.schema";
@@ -12,7 +11,7 @@ export type UserDocument = HydratedDocument<User>;
 })
 export class User{
 
-    @Prop({required: true})
+    @Prop({default: "guest"})
     userName: string;
 
     @Prop({required: true, unique: true})

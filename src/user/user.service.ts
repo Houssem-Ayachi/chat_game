@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import {User, UserDocument} from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
-import { UpdateCharacterDTO } from './user.dto';
+import { UpdateCharacterDTO, UpdateProfileDTO } from './user.dto';
+
+//TODO: in methods updateUser and updateCharacter: same id verification logic is applied twice
+//      replace it with a private method (or a route guard after writing the isLoggedIn Guard)
 
 @Injectable()
 export class UserService {
@@ -24,8 +27,25 @@ export class UserService {
 
     }
 
-    async updateUser(){
-
+    async updateProfile(updateUserDTO: UpdateProfileDTO){
+        let {id, bio, funFacts, userName} = updateUserDTO;
+        if(!isValidObjectId(id)){
+            throw new BadRequestException("id is invalid");
+        }
+        const user = await this.userModel.findById(id);
+        if(user == null){
+            throw new BadRequestException("user doesn't exist");
+        }
+        const ack = await this.userModel.updateOne({_id: user._id}, 
+            {
+                bio, 
+                funFacts,
+                userName,
+            });
+        if(ack.modifiedCount == 1){
+            return {response: "success"};
+        }
+        throw new BadRequestException("couldn't update user");
     }
 
     async updateCharacter(updateCharacterDTO: UpdateCharacterDTO){
@@ -41,7 +61,7 @@ export class UserService {
         if(ack.modifiedCount == 1){
             return {response: "success"};
         }
-        throw new BadRequestException("coulnd't update character");
+        throw new BadRequestException("couldn't update character");
     }
 
     async getUserByEmail(email: string){
@@ -57,5 +77,4 @@ export class UserService {
         const user = await this.userModel.findOne({$or: [{email: login}, {userName: login}]});
         return user;
     }
-
 }
