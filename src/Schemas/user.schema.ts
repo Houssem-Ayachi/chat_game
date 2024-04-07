@@ -34,7 +34,7 @@ export class User{
 
     @Prop({
         type: {hat: String, head: String, body: String},
-        default: {hat: "hat1", head: "head1", "body": "body1"}
+        default: {hat: "hat1", head: "head1"}
     })
     character: {hat: string, head: string, body: string}
 

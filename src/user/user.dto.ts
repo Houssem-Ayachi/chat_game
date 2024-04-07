@@ -4,27 +4,15 @@ export class UpdateCharacterDTO{
 
     @IsNotEmpty()
     @IsString()
-    id: String
-
-    @IsNotEmpty()
-    @IsString()
     hat: String;
 
     @IsNotEmpty()
     @IsString()
     head: String;
 
-    @IsNotEmpty()
-    @IsString()
-    body: String;
-
 }
 
 export class UpdateProfileDTO{
-
-    @IsNotEmpty()
-    @IsString()
-    id: String;
 
     @IsNotEmpty()
     @IsString()

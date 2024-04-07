@@ -1,12 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, isValidObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import {User, UserDocument} from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
 import { UpdateCharacterDTO, UpdateProfileDTO } from './user.dto';
-
-//TODO: in methods updateUser and updateCharacter: same id verification logic is applied twice
-//      replace it with a private method (or a route guard after writing the isLoggedIn Guard)
 
 @Injectable()
 export class UserService {
@@ -16,7 +13,11 @@ export class UserService {
     ){}
  
     async getUser(id: string){
-        
+        const user = await this.userModel.findById(id);
+        if(user == null){
+            throw new BadRequestException("user doesn't exist");
+        }
+        return user;
     }
 
     async addUser(signupObj: SignUpOBJ){
@@ -27,15 +28,9 @@ export class UserService {
 
     }
 
-    async updateProfile(updateUserDTO: UpdateProfileDTO){
-        let {id, bio, funFacts, userName} = updateUserDTO;
-        if(!isValidObjectId(id)){
-            throw new BadRequestException("id is invalid");
-        }
-        const user = await this.userModel.findById(id);
-        if(user == null){
-            throw new BadRequestException("user doesn't exist");
-        }
+    async updateProfile(updateUserDTO: UpdateProfileDTO, userId: string){
+        let {bio, funFacts, userName} = updateUserDTO;
+        const user = await this.getUser(userId);
         const ack = await this.userModel.updateOne({_id: user._id}, 
             {
                 bio, 
@@ -48,16 +43,10 @@ export class UserService {
         throw new BadRequestException("couldn't update user");
     }
 
-    async updateCharacter(updateCharacterDTO: UpdateCharacterDTO){
-        let {id, hat, head, body} = updateCharacterDTO;
-        if(!isValidObjectId(id)){
-            throw new BadRequestException("id is invalid");
-        }
-        const user = await this.userModel.findById(id);
-        if(user == null){
-            throw new BadRequestException("user doesn't exist");
-        }
-        const ack = await this.userModel.updateOne({_id: user._id}, {character: {hat, head, body}});
+    async updateCharacter(updateCharacterDTO: UpdateCharacterDTO, userId: string){
+        let {hat, head} = updateCharacterDTO;
+        const user = await this.getUser(userId);
+        const ack = await this.userModel.updateOne({_id: user._id}, {character: {hat, head}});
         if(ack.modifiedCount == 1){
             return {response: "success"};
         }

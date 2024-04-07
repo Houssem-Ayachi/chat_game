@@ -149,6 +149,9 @@ collectables?
         add purchase to db (logging kinda)
     }
 
+    ->storage page
+    ->trading page
+
 [DOING]
 
 
