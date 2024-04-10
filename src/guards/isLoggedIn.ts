@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { Types } from 'mongoose';
 
 @Injectable()
@@ -50,4 +50,3 @@ export class IsLoggedIn implements CanActivate {
         return false;
     }
 }
-

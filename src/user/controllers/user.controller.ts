@@ -1,20 +1,27 @@
-import { Body, Controller, Delete, Get, Param, Put, Request, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UpdateCharacterDTO, UpdateProfileDTO } from './user.dto';
+import { Body, Controller, Delete, Get, Param, Put, Req, Request, UseGuards } from '@nestjs/common';
+import { UserService } from '../services/user.service';
+import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 import { IsLoggedIn } from 'src/guards/isLoggedIn';
 import { IsVerified } from 'src/guards/isVerified';
-
-//TODO: add email verification guard (IsVerified)
 
 @UseGuards(IsLoggedIn, IsVerified)
 @Controller('user')
 export class UserController {
 
-    constructor(private readonly userService: UserService){}
+    constructor(
+        private readonly userService: UserService,
+    ){}
 
-    @Get("/:id")
+    @Get("/get/:id")
     async getUser(@Param('id') id: string){
         return await this.userService.getUser(id);
+    }
+
+    //TODO: do not include the same user 
+    //      if user searches for his name he shouldn't get any response
+    @Get("/search/:userName")
+    async findUserByName(@Param("userName") userName: string, @Req() req: any){
+        return await this.userService.findUserByName(userName, req["userId"]);
     }
 
     @Delete("/user")

@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 //NOTE: only use this guard after the isLoggedIn guard
 //      because the latter pushes the user's isVerified property into the request obj

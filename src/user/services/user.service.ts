@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {User, UserDocument} from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
-import { UpdateCharacterDTO, UpdateProfileDTO } from './user.dto';
+import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 
 @Injectable()
 export class UserService {
@@ -12,6 +12,16 @@ export class UserService {
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     ){}
  
+    async findUserByName(name: string, userId: string){
+        const id: Types.ObjectId = new Types.ObjectId(userId);
+        const users = await this.userModel.find(
+            {userName: {$regex: name, $options: "i"},
+            _id: {$ne: id}
+        })
+        .select({"_id": true, "userName": true, "character": true});
+        return users;
+    }
+
     async getUser(id: string){
         const user = await this.userModel.findById(id);
         if(user == null){
@@ -30,8 +40,8 @@ export class UserService {
 
     async updateProfile(updateUserDTO: UpdateProfileDTO, userId: string){
         let {bio, funFacts, userName} = updateUserDTO;
-        const user = await this.getUser(userId);
-        const ack = await this.userModel.updateOne({_id: user._id}, 
+        const _id: Types.ObjectId = new Types.ObjectId(userId);
+        const ack = await this.userModel.updateOne({_id}, 
             {
                 bio, 
                 funFacts,
@@ -45,8 +55,8 @@ export class UserService {
 
     async updateCharacter(updateCharacterDTO: UpdateCharacterDTO, userId: string){
         let {hat, head} = updateCharacterDTO;
-        const user = await this.getUser(userId);
-        const ack = await this.userModel.updateOne({_id: user._id}, {character: {hat, head}});
+        const _id: Types.ObjectId = new Types.ObjectId(userId);
+        const ack = await this.userModel.updateOne({_id}, {character: {hat, head}});
         if(ack.modifiedCount == 1){
             return {response: "success"};
         }

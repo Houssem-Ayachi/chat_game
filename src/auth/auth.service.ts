@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 import { hash, compare } from "bcrypt";
 import { EmailerService } from 'src/emailer/emailer.service';
@@ -40,9 +40,9 @@ export class AuthService {
         if(user !== null){
             throw new NotAcceptableException("email already exists");
         }
-        this.sendVerificationEmail(signupObj.email);
         signupObj.password = await this.hashPasswrod(signupObj.password);
         user = await this.userService.addUser(signupObj);
+        this.sendVerificationEmail(signupObj.email);
         return {access_key: await this.generateAccessKey(user._id.toString())}
     }
 
