@@ -3,7 +3,7 @@ import { HydratedDocument, Schema as MSchema } from "mongoose";
 import { Sticker } from "./sticker.schema";
 import { Chat } from "./chat.schema";
 import { Level } from "./level.schema";
-import {v4 as uuidv4, v4} from "uuid";
+import { v4 } from "uuid";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -11,7 +11,6 @@ export type UserDocument = HydratedDocument<User>;
     timestamps: true
 })
 export class User{
-
     @Prop({
         default: v4(),
         unique: true
@@ -57,13 +56,12 @@ export class User{
     @Prop([{ref: "Sticker", type: MSchema.Types.ObjectId}])
     storage: Sticker[]; //list of purchased stickers
 
-    @Prop([{ref: "Chat", type: MSchema.Types.ObjectId}])
-    activeChats: Chat[] //list of user's chats' ids
-
-    @Prop([{ref: "Chat", type: MSchema.Types.ObjectId}])
-    mutedChats: Chat[]; //list of chats ids marked as muted
-    @Prop([{ref: "Chat", type: MSchema.Types.ObjectId}])
-    blockedChats: Chat[] //list of chats ids marked as blocked
+    @Prop([String])
+    activeChats: String[] //list of user's chats' ids
+    @Prop([String])
+    mutedChats: String[]; //list of chats ids marked as muted
+    @Prop([String])
+    blockedChats: String[] //list of chats ids marked as blocked
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

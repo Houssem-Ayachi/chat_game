@@ -12,8 +12,7 @@ export class UserService {
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     ){}
  
-    async findUserByName(name: string, userId: string){
-        const id: Types.ObjectId = new Types.ObjectId(userId);
+    async findUserByName(name: string, id: Types.ObjectId){
         const users = await this.userModel.find(
             {userName: {$regex: name, $options: "i"},
             _id: {$ne: id}
@@ -22,8 +21,17 @@ export class UserService {
         return users;
     }
 
-    async getUser(id: string){
+    async getUser(id: string, filter?: boolean){
         const user = await this.userModel.findById(id);
+        if(user == null){
+            throw new BadRequestException("user doesn't exist");
+        }
+        return user;
+    }
+
+    async getFilteredUser(id: string){
+        const user = await this.userModel.findById(id)
+        .select({"_id": true, "userName": true, "character": true});
         if(user == null){
             throw new BadRequestException("user doesn't exist");
         }
@@ -34,13 +42,13 @@ export class UserService {
         return await this.userModel.create({...signupObj});
     }
 
+    //TODO: maybe implement this?
     async removeUser(id: string){
 
     }
 
-    async updateProfile(updateUserDTO: UpdateProfileDTO, userId: string){
+    async updateProfile(updateUserDTO: UpdateProfileDTO, _id: Types.ObjectId){
         let {bio, funFacts, userName} = updateUserDTO;
-        const _id: Types.ObjectId = new Types.ObjectId(userId);
         const ack = await this.userModel.updateOne({_id}, 
             {
                 bio, 
@@ -53,9 +61,8 @@ export class UserService {
         throw new BadRequestException("couldn't update user");
     }
 
-    async updateCharacter(updateCharacterDTO: UpdateCharacterDTO, userId: string){
+    async updateCharacter(updateCharacterDTO: UpdateCharacterDTO, _id: Types.ObjectId){
         let {hat, head} = updateCharacterDTO;
-        const _id: Types.ObjectId = new Types.ObjectId(userId);
         const ack = await this.userModel.updateOne({_id}, {character: {hat, head}});
         if(ack.modifiedCount == 1){
             return {response: "success"};
@@ -75,5 +82,11 @@ export class UserService {
     public async findUserByLogin(login: string){
         const user = await this.userModel.findOne({$or: [{email: login}, {userName: login}]});
         return user;
+    }
+
+    public async removeChatFromUser(chatId: string, userId: string){
+        const user = await this.getUser(userId);
+        const newChats = user.activeChats.filter(chId => chId.toString() != chatId);
+        await this.userModel.updateOne({_id: userId}, {activeChats: newChats});
     }
 }

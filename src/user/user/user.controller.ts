@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Put, Req, Request, UseGuards } from '@nestjs/common';
-import { UserService } from '../services/user.service';
+import { UserService } from './user.service';
 import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 import { IsLoggedIn } from 'src/guards/isLoggedIn';
 import { IsVerified } from 'src/guards/isVerified';
+import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
 
 @UseGuards(IsLoggedIn, IsVerified)
 @Controller('user')
@@ -21,7 +22,8 @@ export class UserController {
     //      if user searches for his name he shouldn't get any response
     @Get("/search/:userName")
     async findUserByName(@Param("userName") userName: string, @Req() req: any){
-        return await this.userService.findUserByName(userName, req["userId"]);
+        const user: UserInsideRequest = req["user"] as UserInsideRequest;
+        return await this.userService.findUserByName(userName, user.userId);
     }
 
     @Delete("/user")
@@ -31,11 +33,13 @@ export class UserController {
 
     @Put("/profile")
     async updateProfile(@Body() updateUserDTO: UpdateProfileDTO, @Request() req: any){
-        return await this.userService.updateProfile(updateUserDTO, req["userId"]);
+        const user: UserInsideRequest = req["user"] as UserInsideRequest;
+        return await this.userService.updateProfile(updateUserDTO, user.userId);
     }
 
     @Put("/character")
     async updateUserCharacter(@Body() updateCharacterDTO: UpdateCharacterDTO, @Request() req: any){
-        return await this.userService.updateCharacter(updateCharacterDTO, req["userId"]);
+        const user: UserInsideRequest = req["user"] as UserInsideRequest;
+        return await this.userService.updateCharacter(updateCharacterDTO, user.userId);
     }
 }

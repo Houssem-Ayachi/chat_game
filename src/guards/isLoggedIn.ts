@@ -1,8 +1,11 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/services/user.service';
+import { WsException } from '@nestjs/websockets';
 import { Types } from 'mongoose';
+import { Socket } from 'net';
+import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
+import { UserService } from 'src/user/user/user.service';
 
 @Injectable()
 export class IsLoggedIn implements CanActivate {
@@ -17,6 +20,16 @@ export class IsLoggedIn implements CanActivate {
         context: ExecutionContext,
     ): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
+        if(request["headers"]){//http request
+            return await this.handleHttpReq(request);
+        }else if(request["handshake"]){//ws message
+            const client = context.switchToWs().getClient();
+            return await this.handleWsReq(request, client);
+        }
+        
+    }
+
+    async handleHttpReq(request: any){
         const token = this.extractToken(request.headers);
         if(token == "") throw new UnauthorizedException();
         try{
@@ -27,6 +40,23 @@ export class IsLoggedIn implements CanActivate {
             return await this.verifyUser(sub, request);
         }catch(e){
             throw new UnauthorizedException();
+        }
+    }
+
+    async handleWsReq(request: any, client: Socket){
+        const token = this.extractToken(request.handshake.headers);
+        if(token == "") {
+            client.emit("error", JSON.stringify({error: "no token"}));
+            return;
+        }
+        try{
+            //sub here is the user's id inside the token
+            const {sub} = await this.jwtService.verifyAsync(token, {
+                secret: this.config.get("JWT_SECRET")
+            });
+            return await this.verifyUser(sub, request);
+        }catch(e){
+            client.emit("error", JSON.stringify({error: "token verification error"}));
         }
     }
 
@@ -43,8 +73,7 @@ export class IsLoggedIn implements CanActivate {
         }
         const user = await this.userService.getUser(id);
         if (user != null){
-            request["userId"] = user._id.toString();
-            request["isVerified"] = user.isVerified;
+            request["user"] = new UserInsideRequest(id, user.isVerified)
             return true;
         }
         return false;

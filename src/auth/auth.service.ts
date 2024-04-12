@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
-import { UserService } from 'src/user/services/user.service';
 
 import { hash, compare } from "bcrypt";
 import { EmailerService } from 'src/emailer/emailer.service';
 import { SignInOBJ, SignUpOBJ, VerificationCodeOBJ } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -54,6 +54,7 @@ export class AuthService {
             throw new BadRequestException("wrong verification code");
         }
         await this.userService.markUserAsVerified(verificationObj.email);
+        delete this._verificationCodes[verificationObj.email];
         return {response: "email verified"};
     }
 
