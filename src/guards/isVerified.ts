@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Socket } from 'dgram';
-import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
+import { UserInsideRequest } from 'src/globals/UserInsideRequest';
 import { UserService } from 'src/user/user/user.service';
 
 //NOTE: only use this guard after the isLoggedIn guard

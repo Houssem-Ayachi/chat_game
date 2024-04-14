@@ -3,7 +3,7 @@ import { IsLoggedIn } from "src/guards/isLoggedIn";
 import { IsVerified } from "src/guards/isVerified";
 import { AddFriendDTO } from "../user.dto";
 import { FriendService } from "./friend.service";
-import { UserInsideRequest } from "src/globalTypes/UserInsideRequest";
+import { UserInsideRequest } from "src/globals/UserInsideRequest";
 
 @UseGuards(IsLoggedIn, IsVerified)
 @Controller('friend')

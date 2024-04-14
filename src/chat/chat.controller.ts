@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, Param, Req, UseGuar
 import { ChatInReqDTO } from './chat.dto';
 import { ChatService } from './chat.service';
 import { isValidObjectId } from "mongoose";
-import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
+import { UserInsideRequest } from 'src/globals/UserInsideRequest';
 import { IsLoggedIn } from 'src/guards/isLoggedIn';
 import { IsVerified } from 'src/guards/isVerified';
 

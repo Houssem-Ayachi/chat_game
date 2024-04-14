@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
 import { Types } from 'mongoose';
 import { Socket } from 'net';
-import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
+import { UserInsideRequest } from 'src/globals/UserInsideRequest';
 import { UserService } from 'src/user/user/user.service';
 
 @Injectable()

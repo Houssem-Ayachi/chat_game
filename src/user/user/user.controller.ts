@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 import { IsLoggedIn } from 'src/guards/isLoggedIn';
 import { IsVerified } from 'src/guards/isVerified';
-import { UserInsideRequest } from 'src/globalTypes/UserInsideRequest';
+import { UserInsideRequest } from 'src/globals/UserInsideRequest';
 
 @UseGuards(IsLoggedIn, IsVerified)
 @Controller('user')

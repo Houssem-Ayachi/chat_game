@@ -6,13 +6,14 @@ import features from 'src/db/features';
 import { FriendController } from './friend/friend.controller';
 import { FriendService } from './friend/friend.service';
 import { ChatModule } from 'src/chat/chat.module';
+import { UserGateway } from './user/user.gateway';
 
 @Module({
   imports: [MongooseModule.forFeature(features),
     forwardRef(() => ChatModule)
   ],
+  providers: [UserService, FriendService, UserGateway],
   controllers: [UserController, FriendController],
-  providers: [UserService, FriendService],
-  exports: [UserService]
+  exports: [UserService],
 })
 export class UserModule {}
