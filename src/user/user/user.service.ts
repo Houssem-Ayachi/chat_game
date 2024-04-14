@@ -101,6 +101,11 @@ export class UserService {
         return this.onlineUsers;
     }
     
+    public async getUsers(ids: string[]){
+        return await this.userModel.find({_id: {$in: ids}})
+        .select({"_id": true, "userName": true, "character": true});
+    }
+
     async broadcastMessageToUsers(usersIds: string[], eventEmitterFunction: (user: Socket, userId: string) => void){
         for(let userId of usersIds){
             if(this.onlineUsers.has(userId)){
@@ -132,6 +137,6 @@ export class UserService {
         if(!user){
             return CustomError("user not found");
         }
-        return user.friendsIds.filter(id => this.onlineUsers.has(id));
-    }    
+        return await this.getUsers(user.friendsIds.filter(id => this.onlineUsers.has(id)));
+    }
 }
