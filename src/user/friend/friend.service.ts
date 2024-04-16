@@ -27,7 +27,7 @@ export class FriendService{
         const friend = await this.userService.getUser(friendObj.id);
         const user = await this.userService.getUser(userId);
         if(friend.friendsIds.indexOf(user._id.toString()) !== -1){
-            return await this.chatService.getChat(userId, friendObj.id);
+            return await this.chatService.getChatInfo(userId, friendObj.id);
         }
         //creating a chat for the both of them
         const chat = await this.chatService.createChat([userId, friend._id.toString()]);

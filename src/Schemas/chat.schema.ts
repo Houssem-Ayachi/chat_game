@@ -1,8 +1,14 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 import { v4 as uuid } from "uuid";
+import { FilteredUser } from "./user.schema";
 
 export type ChatDocument = HydratedDocument<Chat>;
+
+export class OnlineChatObj {
+    _id: string;
+    friend: FilteredUser
+}
 
 export class MessageObj {
     senderId: string;

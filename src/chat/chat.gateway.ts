@@ -18,9 +18,15 @@ export class ChatGateway {
 
   }
 
-    @SubscribeMessage("sendMessage")
-    async sendMessage(@MessageBody() createMessageDTO: CreateMessageDTO, @Req() req: any){
+  @SubscribeMessage("onlineChats")
+  async getOnlineFriends(@Req() req: any){
       const user: UserInsideRequest = req["user"];
-      return await this.chatService.addMessage(createMessageDTO, user.userId.toString());
-    }
+      return await this.chatService.getOnlineChats(user.userId.toString());
+  }
+
+  @SubscribeMessage("sendMessage")
+  async sendMessage(@MessageBody() createMessageDTO: CreateMessageDTO, @Req() req: any){
+    const user: UserInsideRequest = req["user"];
+    return await this.chatService.addMessage(createMessageDTO, user.userId.toString());
+  }
 }

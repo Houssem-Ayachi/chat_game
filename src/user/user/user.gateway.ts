@@ -39,12 +39,6 @@ export class UserGateway{
         return {message: "success"};
     }
 
-    @SubscribeMessage("onlineFriends")
-    async getOnlineFriends(@Req() req: any){
-        const user: UserInsideRequest = req["user"];
-        return await this.userService.getUserActiveFriends(user.userId.toString());
-    }
-
     @SubscribeMessage('message')
     async handleMessage(payload: any, @Req() req: any) {
         return 'Hello world!';

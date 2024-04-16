@@ -18,6 +18,18 @@ export class ChatController {
         return await this.chatService.getMessages(chatId);
     }
 
+    @Get("/active")
+    async getActiveChats(@Req() req: any){
+        const user: UserInsideRequest = req["user"];
+        return await this.chatService.getActiveChats(user.userId.toString());
+    }
+
+    @Get("/friend/:friendId")
+    async getFriendChat(@Param("friendId") friendId: string, @Req() req: any){
+        const user: UserInsideRequest = req["user"];
+        return await this.chatService.getOnlineChat(user.userId.toString(), friendId);
+    }
+
     @Delete('/')
     async deleteChat(@Body() chatReqBody: ChatInReqDTO, @Req() req: any){
         if(!isValidObjectId(chatReqBody.chatId)){
@@ -32,9 +44,4 @@ export class ChatController {
         
     }
 
-    @Get("/active")
-    async getActiveChats(@Req() req: any){
-        const user: UserInsideRequest = req["user"];
-        return await this.chatService.getActiveChats(user.userId.toString());
-    }
 }

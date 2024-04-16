@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { User, UserDocument } from 'src/Schemas/user.schema';
+import { FilteredUser, User, UserDocument } from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
 import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 import { Socket } from 'net';
@@ -103,23 +103,22 @@ export class UserService {
     
     public async getUsers(ids: string[]){
         return await this.userModel.find({_id: {$in: ids}})
-        .select({"_id": true, "userName": true, "character": true});
+        .select({"_id": true, "userName": true, "character": true}) as FilteredUser[];
     }
 
-    async broadcastMessageToUsers(usersIds: string[], eventEmitterFunction: (user: Socket, userId: string) => void){
-        for(let userId of usersIds){
-            if(this.onlineUsers.has(userId)){
-                eventEmitterFunction(this.onlineUsers.get(userId), userId);
-            } 
-        }
-    }
     async markUserOnline(userId: string, userSocket: Socket){
-        const user = await this.getUser(userId);
+        let user = await this.getUser(userId);
         if(!user){
             return CustomError("user not found");
         }
+        let filteredUser = new FilteredUser(user);
         this.onlineUsers.set(userId, userSocket);
-        this.broadcastMessageToUsers(user.friendsIds, sendFriendConnectedEvent);
+        //broadcasting message
+        for(let userId of user.friendsIds){
+            if(this.onlineUsers.has(userId)){
+                sendFriendConnectedEvent(this.onlineUsers.get(userId), filteredUser);
+            }
+        }
         return SimpleResponseMessage("success");
     }
     
@@ -129,13 +128,22 @@ export class UserService {
         if(!user){
             return CustomError("user not found");
         }
-        this.broadcastMessageToUsers(user.friendsIds, sendFriendDisconnedEvent);
-    } 
+        let filteredUser = new FilteredUser(user);
+        //broadcasting message
+        for(let userId of user.friendsIds){
+            if(this.onlineUsers.has(userId)){
+                sendFriendDisconnedEvent(this.onlineUsers.get(userId), filteredUser);
+            }
+        }
+    }
 
-    async getUserActiveFriends(userId: string){
+    async getUserActiveFriends(userId: string, onlyIds?: boolean){
         const user = await this.getUser(userId);
         if(!user){
             return CustomError("user not found");
+        }
+        if(onlyIds){
+            return user.friendsIds.filter(id => this.onlineUsers.has(id));
         }
         return await this.getUsers(user.friendsIds.filter(id => this.onlineUsers.has(id)));
     }

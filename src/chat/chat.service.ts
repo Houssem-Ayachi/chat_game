@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, isValidObjectId } from 'mongoose';
-import { Chat, ChatDocument, MessageObj } from 'src/Schemas/chat.schema';
+import { Chat, ChatDocument, MessageObj, OnlineChatObj } from 'src/Schemas/chat.schema';
 import { UserService } from 'src/user/user/user.service';
 import { CreateMessageDTO } from './chat.dto';
 import { WsException } from '@nestjs/websockets';
@@ -39,7 +39,7 @@ export class ChatService {
         return {chatId: chat._id.toString()};
     }
 
-    async getChat(user1Id: string, user2Id: string){
+    async getChatInfo(user1Id: string, user2Id: string){
         const chat = await this.chatModel.findOne({chatters: {$in: [user1Id, user2Id]}})
         .select({"_id": true});
         return {chatId: chat._id.toString()};
@@ -69,7 +69,7 @@ export class ChatService {
     }
 
     //NOTE: this method sends to all the chatters other than the sender (works with group chats)
-    sendMessageNotificationToChatters(chat: ChatDocument, message: MessageObj){
+    private sendMessageNotificationToChatters(chat: ChatDocument, message: MessageObj){
         const chatters = chat.chatters.filter(id => id != message.senderId);
         const onlineUsers = this.userService.getAllOnlineUsers();
         for(let chatter of chatters){
@@ -81,7 +81,6 @@ export class ChatService {
 
     //NOTE: this function does not work well with group chats caus at the point of making it
     //I wasn't sure whether i'd implement group chats or not
-    //TODO: get the last message in the chat and add it to the obj below
     async getActiveChats(userId: string){
         const user = await this.userService.getUser(userId);
         const chats = await this.chatModel.find({
@@ -91,11 +90,31 @@ export class ChatService {
         for(let chat of chats){
             const obj = {
                 chatId: chat._id.toString(),
+                lastMessage: chat.messages[chat.messages.length-1],
                 user: await this.userService.getFilteredUser(chat.chatters.filter(user => user.toString() != userId)[0].toString())
             }
             activeChats.push(obj);
         }
         return activeChats;
+    }
+
+    async getOnlineChats(userId: string){
+        const friends = await this.userService.getUserActiveFriends(userId, true);
+        const chats = (await this.chatModel.find({chatters: {$in: friends}}).select({_id: true, chatters: true}));
+        const res: OnlineChatObj[] = [];
+        for(let chat of chats){
+            const friendId = chat.chatters.filter(id => id != userId)[0].toString();
+            const friend = await this.userService.getFilteredUser(friendId);
+            res.push({_id: chat._id.toString(), friend: friend});
+        }
+        return res;
+    }
+
+    async getOnlineChat(userId: string, friendId: string){
+        const friend = await this.userService.getFilteredUser(friendId);
+        const chat = await this.chatModel.findOne({chatters: {$in: [userId, friendId]}})
+        const onlineChatObj: OnlineChatObj = {_id: chat._id.toString(), friend};
+        return onlineChatObj;
     }
 
     async deleteChat(chatId: string, userId: string){

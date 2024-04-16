@@ -37,3 +37,9 @@ export class GetFriendsDTO{
     @IsString({each: true})
     ids: string[];
 }
+
+export class filteredUser{
+    _id: string;
+    userName: string;
+    character: {}
+}

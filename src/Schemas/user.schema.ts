@@ -1,11 +1,27 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { HydratedDocument, Schema as MSchema } from "mongoose";
+import { HydratedDocument, Schema as MSchema, Types } from "mongoose";
 import { Sticker } from "./sticker.schema";
-import { Chat } from "./chat.schema";
 import { Level } from "./level.schema";
 import { v4 } from "uuid";
 
 export type UserDocument = HydratedDocument<User>;
+export class UserCharacter {
+    _id: Types.ObjectId;
+    hat: string;
+    head: string;
+    body: string
+};
+export class FilteredUser{
+    _id: Types.ObjectId;
+    userName: string;
+    character: UserCharacter;
+
+    constructor(user: any){
+        this._id = user._id;
+        this.userName = user.userName;
+        this.character = user.character;
+    }
+}
 
 @Schema({
     timestamps: true
@@ -39,10 +55,10 @@ export class User{
     points: number;
 
     @Prop({
-        type: {hat: String, head: String, body: String},
+        type: UserCharacter,
         default: {hat: "hat1", head: "head1"}
     })
-    character: {hat: string, head: string, body: string}
+    character: UserCharacter
 
     @Prop()
     bio: string;
