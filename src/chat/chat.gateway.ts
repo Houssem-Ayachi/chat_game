@@ -1,7 +1,7 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Socket } from 'net';
-import { Req, UseGuards } from '@nestjs/common';
+import { Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { IsLoggedIn } from 'src/guards/isLoggedIn';
 import { IsVerified } from 'src/guards/isVerified';
 import { CreateMessageDTO } from './chat.dto';
@@ -25,7 +25,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage("sendMessage")
-  async sendMessage(@MessageBody() createMessageDTO: CreateMessageDTO, @Req() req: any){
+  async sendMessage(@MessageBody(new ValidationPipe()) createMessageDTO: CreateMessageDTO, @Req() req: any){
     const user: UserInsideRequest = req["user"];
     return await this.chatService.addMessage(createMessageDTO, user.userId.toString());
   }

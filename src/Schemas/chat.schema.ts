@@ -10,7 +10,7 @@ export class OnlineChatObj {
     friend: FilteredUser
 }
 
-export class MessageObj {
+export class PlainMessageObj {
     senderId: string;
     chatId: string;
     content: string;
@@ -22,6 +22,13 @@ export class MessageObj {
         this.content = content;
         this.sticker = sticker;
     }
+}
+
+export class Message{
+    user: FilteredUser;
+    chatId: string;
+    content: string;
+    sticker: string;
 }
 
 @Schema({
@@ -39,8 +46,8 @@ export class Chat{
     @Prop([String])
     chatters: String[]; //chatters' ids
 
-    @Prop([{type: MessageObj}])
-    messages: MessageObj[];
+    @Prop([{type: PlainMessageObj}])
+    messages: PlainMessageObj[];
 
     @Prop({default: 1})
     level: number;

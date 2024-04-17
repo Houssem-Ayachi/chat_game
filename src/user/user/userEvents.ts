@@ -1,5 +1,5 @@
 import { Socket } from "net";
-import { MessageObj } from "src/Schemas/chat.schema";
+import { Message } from "src/Schemas/chat.schema";
 import { FilteredUser } from "src/Schemas/user.schema";
 
 export const sendFriendConnectedEvent = (user: Socket, friend: FilteredUser) => {
@@ -10,6 +10,6 @@ export const sendFriendDisconnedEvent = (user: Socket, friend: FilteredUser) => 
     user.emit("userDisconnected", JSON.stringify({...friend}));
 }
 
-export const sendMessageEvent = (user: Socket, message: MessageObj) => {
+export const sendMessageEvent = (user: Socket, message: Message) => {
     user.emit("chatMessage", JSON.stringify({...message}));
 }

@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, isValidObjectId } from 'mongoose';
-import { Chat, ChatDocument, MessageObj, OnlineChatObj } from 'src/Schemas/chat.schema';
+import { Chat, ChatDocument, PlainMessageObj, OnlineChatObj, Message } from 'src/Schemas/chat.schema';
 import { UserService } from 'src/user/user/user.service';
 import { CreateMessageDTO } from './chat.dto';
 import { WsException } from '@nestjs/websockets';
@@ -25,7 +25,7 @@ export class ChatService {
             throw new WsException("bad chad id");
         }
         const chat = await this.chatModel.findById(chatId);
-        const messages = [];
+        const messages: Message[] = [];
         for(let message of chat.messages){
             const user = await this.userService.getFilteredUser(message.senderId);
             const {senderId, ...msg} = message;
@@ -55,7 +55,7 @@ export class ChatService {
             return CustomError("chat doesn't exist");
         }
         //creating the message
-        const message: MessageObj = new MessageObj(
+        const message: PlainMessageObj = new PlainMessageObj(
             userId,
             createMessageDTO.chatId,
             createMessageDTO.message,
@@ -69,12 +69,14 @@ export class ChatService {
     }
 
     //NOTE: this method sends to all the chatters other than the sender (works with group chats)
-    private sendMessageNotificationToChatters(chat: ChatDocument, message: MessageObj){
-        const chatters = chat.chatters.filter(id => id != message.senderId);
+    private async sendMessageNotificationToChatters(chat: ChatDocument, message: PlainMessageObj){
+        const chatters = chat.chatters;
         const onlineUsers = this.userService.getAllOnlineUsers();
+        const sender = await this.userService.getFilteredUser(message.senderId);
+        const msg: Message = {user: sender, chatId: message.chatId, content: message.content, sticker: message.sticker};
         for(let chatter of chatters){
             if(onlineUsers.has(chatter.toString())){
-                sendMessageEvent(onlineUsers.get(chatter.toString()), message);
+                sendMessageEvent(onlineUsers.get(chatter.toString()), msg);
             }
         }
     }

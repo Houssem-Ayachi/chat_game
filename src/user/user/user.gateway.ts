@@ -26,6 +26,7 @@ export class UserGateway{
 
     async handleDisconnect(client: Socket, @Req() req: any){
         this.userService.disconnectUser(client["userId"]);
+        console.log("disconnected");
     }
 
     @SubscribeMessage("register")
