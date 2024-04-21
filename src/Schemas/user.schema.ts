@@ -58,7 +58,7 @@ export class User{
         type: UserCharacter,
         default: {hat: "hat1", head: "head1"}
     })
-    character: UserCharacter
+    character: UserCharacter;
 
     @Prop()
     bio: string;

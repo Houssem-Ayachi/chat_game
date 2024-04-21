@@ -28,6 +28,15 @@ export class UserService {
         return users;
     }
 
+    async getUserProfile(userId: string){
+        const user = await this.userModel.findById(userId)
+        .select({userName: true, bio: true, funFacts: true, email: true, character: true});
+        if(!user){
+            throw new BadRequestException("user doens't exist");
+        }
+        return user;
+    }
+
     async getUser(id: string, filter?: boolean){
         const user = await this.userModel.findById(id);
         if(user == null){
@@ -140,11 +149,16 @@ export class UserService {
     async getUserActiveFriends(userId: string, onlyIds?: boolean){
         const user = await this.getUser(userId);
         if(!user){
-            return CustomError("user not found");
+            return []
         }
         if(onlyIds){
             return user.friendsIds.filter(id => this.onlineUsers.has(id));
         }
         return await this.getUsers(user.friendsIds.filter(id => this.onlineUsers.has(id)));
+    }
+
+    async getUserActiveFriendsIds(userId: string){
+        const user = await this.getUser(userId);
+        return user.friendsIds.filter(id => this.onlineUsers.has(id));
     }
 }

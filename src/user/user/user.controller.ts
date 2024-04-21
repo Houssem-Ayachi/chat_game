@@ -13,13 +13,17 @@ export class UserController {
         private readonly userService: UserService,
     ){}
 
+    @Get("/profile")
+    async getUserProfile(@Req() req: any){
+        const user: UserInsideRequest = req["user"];
+        return await this.userService.getUserProfile(user.userId.toString());
+    }
+
     @Get("/get/:id")
     async getUser(@Param('id') id: string){
         return await this.userService.getUser(id);
     }
 
-    //TODO: do not include the same user 
-    //      if user searches for his name he shouldn't get any response
     @Get("/search/:userName")
     async findUserByName(@Param("userName") userName: string, @Req() req: any){
         const user: UserInsideRequest = req["user"] as UserInsideRequest;

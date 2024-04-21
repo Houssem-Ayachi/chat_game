@@ -40,7 +40,7 @@ export class ChatService {
     }
 
     async getChatInfo(user1Id: string, user2Id: string){
-        const chat = await this.chatModel.findOne({chatters: {$in: [user1Id, user2Id]}})
+        const chat = await this.chatModel.findOne({chatters: {$all: [user1Id, user2Id]}})
         .select({"_id": true});
         return {chatId: chat._id.toString()};
     }
@@ -101,10 +101,13 @@ export class ChatService {
     }
 
     async getOnlineChats(userId: string){
-        const friends = await this.userService.getUserActiveFriends(userId, true);
-        const chats = (await this.chatModel.find({chatters: {$in: friends}}).select({_id: true, chatters: true}));
+        const onlineFriends = await this.userService.getUserActiveFriendsIds(userId);
+        const onlineChats: ChatDocument[] = [];
+        for(let friend of onlineFriends){
+            onlineChats.push(await this.chatModel.findOne({chatters: {$all: [userId, friend]}}));
+        }
         const res: OnlineChatObj[] = [];
-        for(let chat of chats){
+        for(let chat of onlineChats){
             const friendId = chat.chatters.filter(id => id != userId)[0].toString();
             const friend = await this.userService.getFilteredUser(friendId);
             res.push({_id: chat._id.toString(), friend: friend});
