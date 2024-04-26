@@ -13,6 +13,13 @@ export class UserController {
         private readonly userService: UserService,
     ){}
 
+    //TODO: DELETE AFTER TESTING
+    @Get("/level")
+    async addExperience(@Req() req: any){
+        const user: UserInsideRequest = req["user"];
+        return await this.userService.addExperience(10, user.userId.toString());
+    }
+
     @Get("/profile")
     async getUserProfile(@Req() req: any){
         const user: UserInsideRequest = req["user"];

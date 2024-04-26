@@ -21,12 +21,10 @@ export class UserGateway{
 
     //called when a client connects
     async handleConnection(client: Socket){
-        console.log("connected");
     }
 
     async handleDisconnect(client: Socket, @Req() req: any){
         this.userService.disconnectUser(client["userId"]);
-        console.log("disconnected");
     }
 
     @SubscribeMessage("register")

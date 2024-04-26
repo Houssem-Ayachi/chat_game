@@ -13,3 +13,7 @@ export const sendFriendDisconnedEvent = (user: Socket, friend: FilteredUser) => 
 export const sendMessageEvent = (user: Socket, message: Message) => {
     user.emit("chatMessage", JSON.stringify({...message}));
 }
+
+export const sendLeveledUpEvent = (user: Socket) => {
+    user.emit("leveledUp");
+}

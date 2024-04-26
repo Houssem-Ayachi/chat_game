@@ -5,7 +5,6 @@ import { Chat, ChatDocument, PlainMessageObj, OnlineChatObj, Message } from 'src
 import { UserService } from 'src/user/user/user.service';
 import { CreateMessageDTO } from './chat.dto';
 import { WsException } from '@nestjs/websockets';
-import { Socket } from 'net';
 import { CustomError } from 'src/globals/Errors';
 import { sendMessageEvent } from 'src/user/user/userEvents';
 
@@ -15,10 +14,6 @@ export class ChatService {
         @InjectModel(Chat.name) private readonly chatModel: Model<ChatDocument>,
         private readonly userService: UserService
     ){}
-
-    async markUserOnline(userId: string, user: Socket){
-        return await this.userService.markUserOnline(userId, user);
-    }
 
     async getMessages(chatId: string){
         if(!isValidObjectId(chatId)){
@@ -66,6 +61,7 @@ export class ChatService {
         await this.chatModel.updateOne({_id: chat._id}, {messages: chat.messages});
         //broadCast message to this chat users "chatters"
         this.sendMessageNotificationToChatters(chat, message);
+        this.userService.addExperience(10, userId);
     }
 
     //NOTE: this method sends to all the chatters other than the sender (works with group chats)

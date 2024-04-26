@@ -7,10 +7,13 @@ import { FriendController } from './friend/friend.controller';
 import { FriendService } from './friend/friend.service';
 import { ChatModule } from 'src/chat/chat.module';
 import { UserGateway } from './user/user.gateway';
+import { LevelModule } from 'src/level/level.module';
 
 @Module({
-  imports: [MongooseModule.forFeature(features),
-    forwardRef(() => ChatModule)
+  imports: [
+    MongooseModule.forFeature(features),
+    forwardRef(() => ChatModule),
+    LevelModule
   ],
   providers: [UserService, FriendService, UserGateway],
   controllers: [UserController, FriendController],

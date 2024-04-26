@@ -1,9 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MSchema } from "mongoose";
 import { v4 as uuid } from "uuid";
-import { Sticker } from "./sticker.schema";
 
 export type LevelDocument = HydratedDocument<Level>;
+
+export type LevelType = {
+    rank: number;
+    xpCeiling: number;
+}
 
 @Schema({
     timestamps: true
@@ -22,9 +26,6 @@ export class Level{
 
     @Prop({required: true})
     xpCeiling: number;
-
-    @Prop({type: [{ref: "Sticker", type: MSchema.Types.ObjectId}]})
-    rewards: Sticker[];
 }
 
 export const LevelSchema = SchemaFactory.createForClass(Level);

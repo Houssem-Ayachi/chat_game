@@ -5,19 +5,23 @@ import { FilteredUser, User, UserDocument } from 'src/Schemas/user.schema';
 import { SignUpOBJ } from 'src/auth/auth.dto';
 import { UpdateCharacterDTO, UpdateProfileDTO } from '../user.dto';
 import { Socket } from 'net';
-import { sendFriendConnectedEvent, sendFriendDisconnedEvent} from './userEvents';
+import { sendFriendConnectedEvent, sendFriendDisconnedEvent, sendLeveledUpEvent} from './userEvents';
 import { CustomError } from 'src/globals/Errors';
 import { SimpleResponseMessage } from 'src/globals/Responses';
+import { LevelService } from 'src/level/level.service';
 
 @Injectable()
 export class UserService {
 
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+        private readonly levelService: LevelService,
     ){}
  
     //user's id mapped to his socket instance
     onlineUsers: Map<string, Socket> = new Map();
+
+    //  --------------------ROUTE FUNCTIONS--------------------
 
     async findUserByName(name: string, id: Types.ObjectId){
         const users = await this.userModel.find(
@@ -30,7 +34,16 @@ export class UserService {
 
     async getUserProfile(userId: string){
         const user = await this.userModel.findById(userId)
-        .select({userName: true, bio: true, funFacts: true, email: true, character: true});
+        .populate("level")
+        .select({
+            userName: true,
+            bio: true, 
+            funFacts: true, 
+            email: true, 
+            character: true,
+            level: true,
+            points: true,
+        });
         if(!user){
             throw new BadRequestException("user doens't exist");
         }
@@ -47,7 +60,14 @@ export class UserService {
 
     async getFilteredUser(id: string){
         const user = await this.userModel.findById(id)
-        .select({"_id": true, "userName": true, "character": true});
+        .select({
+            "_id": true,
+            "userName": true,
+            "character": true,
+            "level": true,
+            "currentXp": true,
+            "points": true
+        });
         if(user == null){
             throw new BadRequestException("user doesn't exist");
         }
@@ -55,7 +75,8 @@ export class UserService {
     }
 
     async addUser(signupObj: SignUpOBJ){
-        return await this.userModel.create({...signupObj});
+        const level = await this.levelService.getLevelByRank(1);
+        return await this.userModel.create({...signupObj, level: level._id});
     }
 
     //TODO: maybe implement this?
@@ -94,6 +115,8 @@ export class UserService {
         await this.userModel.updateOne({email}, {isVerified: true})
     }
 
+    //  --------------------HELPER FUNCTIONS--------------------
+
     //login can either be an email or a username
     public async findUserByLogin(login: string){
         const user = await this.userModel.findOne({$or: [{email: login}, {userName: login}]});
@@ -110,10 +133,32 @@ export class UserService {
         return this.onlineUsers;
     }
     
-    public async getUsers(ids: string[]){
-        return await this.userModel.find({_id: {$in: ids}})
-        .select({"_id": true, "userName": true, "character": true}) as FilteredUser[];
+    public async getUserActiveFriendsIds(userId: string){
+        const user = await this.getUser(userId);
+        return user.friendsIds.filter(id => this.onlineUsers.has(id));
     }
+
+    public async addExperience(amount: number, userId: string){
+        const {level, currentXp, points} = await this.userModel.findById(userId)
+        .select({level: true,currentXp: true, points: true})
+        .populate("level");
+        let newXp = amount + currentXp  
+        if(newXp >= level.xpCeiling){ // LEVELED UP
+            const nextLevel = await this.levelService.getNextLevel(level.rank); // returns null if maximum level is reached
+            if(nextLevel != null){
+                await this.userModel.updateOne({_id: userId}, {
+                    currentXp: level.xpCeiling % currentXp,
+                    level: nextLevel._id,
+                    points: points + 10, //with every levelup 10 points are added 
+                });
+                sendLeveledUpEvent(this.onlineUsers.get(userId));
+            }
+        }else{ //increment current xp with amount
+            await this.userModel.updateOne({_id: userId}, {currentXp: newXp});
+        }
+    }
+
+    //  --------------------GATEWAY FUNCTIONS--------------------
 
     async markUserOnline(userId: string, userSocket: Socket){
         let user = await this.getUser(userId);
@@ -146,19 +191,4 @@ export class UserService {
         }
     }
 
-    async getUserActiveFriends(userId: string, onlyIds?: boolean){
-        const user = await this.getUser(userId);
-        if(!user){
-            return []
-        }
-        if(onlyIds){
-            return user.friendsIds.filter(id => this.onlineUsers.has(id));
-        }
-        return await this.getUsers(user.friendsIds.filter(id => this.onlineUsers.has(id)));
-    }
-
-    async getUserActiveFriendsIds(userId: string){
-        const user = await this.getUser(userId);
-        return user.friendsIds.filter(id => this.onlineUsers.has(id));
-    }
 }

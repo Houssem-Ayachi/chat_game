@@ -7,6 +7,9 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailerModule } from './emailer/emailer.module';
 import { ChatModule } from './chat/chat.module';
+import { LevelController } from './level/level.controller';
+import { LevelModule } from './level/level.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -16,8 +19,10 @@ import { ChatModule } from './chat/chat.module';
     AuthModule,
     EmailerModule,
     ChatModule,
+    LevelModule,
+    StoreModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, LevelController],
   providers: [AppService],
 })
 export class AppModule {};
