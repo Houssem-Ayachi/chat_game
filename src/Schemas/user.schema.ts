@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MSchema, Types } from "mongoose";
 import { Sticker } from "./sticker.schema";
 import { Level } from "./level.schema";
-import { v4 } from "uuid";
 
 export type UserDocument = HydratedDocument<User>;
 export class UserCharacter {
@@ -28,7 +27,7 @@ export class FilteredUser{
 })
 export class User{
     @Prop({
-        default: v4(),
+        default: (new Date()).toString(),
         unique: true
     })
     id: string;
