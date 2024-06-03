@@ -16,17 +16,12 @@ export class Sticker{
     })
     id: String;
 
-    @Prop({require: true})
-    name: String;
-
     @Prop({required: true})
     imageId: String; //image name in frontend
 
     @Prop({required: true})
     price: number;
 
-    @Prop()
-    rarity: number; //maybe this property is not needed idk
 }
 
 export const StickerSchema = SchemaFactory.createForClass(Sticker);

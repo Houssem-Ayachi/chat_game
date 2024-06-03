@@ -44,7 +44,6 @@ export class ChatService {
         if(!isValidObjectId(createMessageDTO.chatId)){
             return CustomError("chatId invalid");
         }
-        // const user = await this.userService.getUser(userId);
         const chat = await this.chatModel.findById(createMessageDTO.chatId);
         if(!chat){
             return CustomError("chat doesn't exist");

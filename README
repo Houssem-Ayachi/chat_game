@@ -1,0 +1,16 @@
+What is this project?
+--> This is a server for a chat application I made, it is somewhat a game more than it is an actual app
+    users have levels and points with each level they gain points to buy stickers, experience points
+    are gained when sending messages to other users
+
+How to run?
+--> Create a mongo db database named chatGame
+--> Create a .env file
+--> Fill it with these variables:
+        DATABASE_URL = the mongo db connection url
+        JWT_SECRET   = a secret string to encode authentication tokens with
+        EMAIL        = the email to be used to send automatic emails to users
+        EMAILPASS    = the password provided by your email service to enable automatic emails sending
+--> npm install
+--> run mongo server
+--> npm run

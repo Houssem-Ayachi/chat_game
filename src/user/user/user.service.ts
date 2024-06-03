@@ -9,12 +9,14 @@ import { sendFriendConnectedEvent, sendFriendDisconnedEvent, sendLeveledUpEvent}
 import { CustomError } from 'src/globals/Errors';
 import { SimpleResponseMessage } from 'src/globals/Responses';
 import { LevelService } from 'src/level/level.service';
+import { Sticker } from 'src/Schemas/sticker.schema';
 
 @Injectable()
 export class UserService {
 
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+        @InjectModel(Sticker.name) private readonly stickerModel: Model<Sticker>,
         private readonly levelService: LevelService,
     ){}
  
@@ -22,6 +24,13 @@ export class UserService {
     onlineUsers: Map<string, Socket> = new Map();
 
     //  --------------------ROUTE FUNCTIONS--------------------
+
+    async getUserStorage(userId: string){
+        const user = await this.userModel.findById(userId)
+            .populate("storage")
+            .select({"storage": true});
+        return user.storage;
+    }
 
     async findUserByName(name: string, id: Types.ObjectId){
         const users = await this.userModel.find(
@@ -76,7 +85,8 @@ export class UserService {
 
     async addUser(signupObj: SignUpOBJ){
         const level = await this.levelService.getLevelByRank(1);
-        return await this.userModel.create({...signupObj, level: level._id});
+        const sticker = await this.stickerModel.findOne({imageId: "sticker10"});
+        return await this.userModel.create({...signupObj, level: level._id, storage: [sticker._id]});
     }
 
     //TODO: maybe implement this?

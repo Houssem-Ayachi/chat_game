@@ -29,4 +29,5 @@ export class ChatGateway {
     const user: UserInsideRequest = req["user"];
     return await this.chatService.addMessage(createMessageDTO, user.userId.toString());
   }
+  
 }

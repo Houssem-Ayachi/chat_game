@@ -26,6 +26,12 @@ export class UserController {
         return await this.userService.getUserProfile(user.userId.toString());
     }
 
+    @Get("/storage")
+    async getUserStorage(@Req() req: any){
+        const user: UserInsideRequest = req["user"];
+        return await this.userService.getUserStorage(user.userId.toString());
+    }
+
     @Get("/get/:id")
     async getUser(@Param('id') id: string){
         return await this.userService.getUser(id);
